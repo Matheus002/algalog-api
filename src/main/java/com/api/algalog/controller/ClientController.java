@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,5 +56,16 @@ public class ClientController {
     	client = clientRepository.save(client);
     	
     	return ResponseEntity.ok(client);
+    }
+    
+    @DeleteMapping("/{clientId}")
+    public ResponseEntity<Void> remove(@PathVariable Long clientId) {
+    	if (!clientRepository.existsById(clientId)) {
+    		return ResponseEntity.notFound().build();
+    	}
+    	
+    	clientRepository.deleteById(clientId);
+    	
+    	return ResponseEntity.noContent().build();
     }
 }
