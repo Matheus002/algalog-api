@@ -3,6 +3,7 @@ package com.api.algalog.exceptionHandler;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,7 +22,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		List<Problem.Field> fields = new ArrayList<>();
 
 		for (ObjectError error: ex.getBindingResult().getAllErrors()) {
-			fields.add( new Problem.Field("name", "mensage"));
+			String name = ((FieldError) error).getField();
+			String message = error.getDefaultMessage();
+			fields.add( new Problem.Field(name, message));
 		}
 
 		Problem problem = new Problem();
