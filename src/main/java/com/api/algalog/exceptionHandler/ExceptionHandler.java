@@ -1,5 +1,9 @@
 package com.api.algalog.exceptionHandler;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
@@ -12,11 +16,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import lombok.AllArgsConstructor;
+import com.api.algalog.domain.exception.DomainException;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @ControllerAdvice
@@ -24,6 +26,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	private MessageSource messageSource;
 	
+	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 																  HttpHeaders headers, HttpStatus status, WebRequest request) {
 		List<Problem.Field> fields = new ArrayList<>();
@@ -37,9 +40,22 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		Problem problem = new Problem();
 		problem.setStatus(status.value());
 		problem.setDateTime(LocalDateTime.now());
-		problem.setTitulo("Um ou mais campos estão inválidos. Faça o preencimento correto e tente novamento.");
+		problem.setTitle("Um ou mais campos estão inválidos. Faça o preencimento correto e tente novamento.");
 		problem.setFields(fields);
 		return handleExceptionInternal(ex, problem, headers, status, request);
+	}
+	
+	
+	@org.springframework.web.bind.annotation.ExceptionHandler(DomainException.class)
+	public ResponseEntity<Object> handleDomain(DomainException ex, WebRequest request) {
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		
+		Problem problem = new Problem();
+		problem.setStatus(status.value());
+		problem.setDateTime(LocalDateTime.now());
+		problem.setTitle(ex.getMessage());
+		
+		return handleExceptionInternal(ex, ex, new HttpHeaders(), status, request);
 	}
 	
 }
