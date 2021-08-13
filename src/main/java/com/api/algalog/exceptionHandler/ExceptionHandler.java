@@ -1,5 +1,7 @@
 package com.api.algalog.exceptionHandler;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +12,17 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import lombok.AllArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@AllArgsConstructor
 @ControllerAdvice
 public class ExceptionHandler extends ResponseEntityExceptionHandler {
+	
+	private MessageSource messageSource;
 	
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 																  HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -23,7 +30,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
 		for (ObjectError error: ex.getBindingResult().getAllErrors()) {
 			String name = ((FieldError) error).getField();
-			String message = error.getDefaultMessage();
+			String message = messageSource.getMessage(error, LocaleContextHolder.getLocale());
 			fields.add( new Problem.Field(name, message));
 		}
 
